@@ -1,6 +1,7 @@
 import type React from "react";
 import "./ui/Sidebar.css"
 import { Sidebar } from "lucide-react";
+import ContractHistory from "./ContractHistory";
 
 type Props = {
     open: boolean;
@@ -25,6 +26,7 @@ const SideBar = ({open, setOpen}: Props) => {
 
         <section>
             <h2>My Contracts</h2>
+            <ContractHistory/>
         </section>
 
         <footer></footer>
