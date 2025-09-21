@@ -13,6 +13,13 @@ import "../components/ui/chatbot.css"
 // Initialize react-modal
 Modal.setAppElement('#root');
 
+interface Contract {
+  title: string;
+  id: string;
+  timestamp: Date;
+  messages: Message[];
+}
+
 interface Message {
   id: string
   type: "user" | "ai"
@@ -24,6 +31,7 @@ interface Message {
 }
 
 const Chatbot: React.FC = () => {
+ 
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -33,6 +41,26 @@ const Chatbot: React.FC = () => {
       timestamp: new Date(),
     },
   ])
+
+  const[contract,setContract] = useState<Contract>({
+    title: "Chat",
+    id: Date.now().toString(),
+    timestamp: new Date(),
+    messages: messages
+  })
+
+  const saveChat = (res: any)=> {
+    if(res) {
+      const stored =  localStorage.getItem("contract-history")
+      if(stored) {
+      const chats =JSON.parse(stored)
+      chats.push(contract)
+      localStorage.setItem("contract-history", chats)
+    }
+    }
+  }
+
+
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isJSONModalOpen, setIsJSONModalOpen] = useState(false)
@@ -83,6 +111,23 @@ const Chatbot: React.FC = () => {
 
     try {
       const response = await generateSmartContract(input.trim())
+
+      if (response) {
+        const botMessage: Message = {
+          id: Date.now().toString(),
+          type: "ai",
+          content: response,
+          timestamp: new Date()
+        }
+
+        setMessages(prev=> [...prev, botMessage])
+        setContract({
+          ...contract,
+          messages: messages
+        })
+        saveChat(contract)
+      }
+
       const isSolidityCode = response.includes("pragma solidity") && response.includes("contract ") && response.includes("function ");
       
       const aiMessage: Message = {
